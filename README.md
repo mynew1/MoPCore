@@ -1,4 +1,4 @@
-# ![logo](http://wowsource.info/public/style_images/1_cooltext1537712788.gif)
+
 
 # WoWSource Core
 
