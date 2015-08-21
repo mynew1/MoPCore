@@ -9,5 +9,6 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 add_subdirectory(map_extractor)
+add_subdirectory(mmaps_generator)
 add_subdirectory(vmap4_assembler)
 add_subdirectory(vmap4_extractor)
