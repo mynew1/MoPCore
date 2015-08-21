@@ -132,15 +132,8 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, " _    _       _    _ _____                          ");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, "| |  | |     | |  | /  ___|                         ");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, "| |  | | ___ | |  | \\ `--.  ___  _   _ _ __ ___ ___ ");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, "| |/\\| |/ _ \\| |/\\| |`--. \\/ _ \\| | | | '__/ __/ _ \\");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, "\\  /\\  / (_) \\  /\\  /\\__/ / (_) | |_| | | | (_|  __/");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, " \\/  \\/ \\___/ \\/  \\/\\____/ \\___/ \\__,_|_|  \\___\\___|");
-	sLog->outInfo(LOG_FILTER_WORLDSERVER, "WoWSource 2012-2015");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Visit our forum www.wowsource.info");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "WoWSource V3 Mop 5.4.8");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "TrinityCore 2012-2015");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "MoPCore 2015");
 
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
