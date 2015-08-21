@@ -2361,8 +2361,8 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     player->ModifyCurrency(itemUpEntry->currencyId, -itemUpEntry->currencyCost, false, true, true);
 }
 
-void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
+/*void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
 {
     uint32 specializationId = recvData.read<uint32>();
     GetPlayer()->SetLootSpecId(specializationId);
-}
+} */

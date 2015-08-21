@@ -5732,7 +5732,7 @@ public:
 			if (owner && owner->GetTypeId() == TYPEID_PLAYER)
 			{
 				me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
-				owner->CastSpell(me, 45204, true);
+				owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
 				owner->CastSpell(me, SPELL_CLONE_CASTER, true);
 				owner->AddAura(SPELL_MEDITATE, me);
 				me->AddAura(SPELL_ROOT_FOR_EVER, me);
