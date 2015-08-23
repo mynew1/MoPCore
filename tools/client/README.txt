@@ -1,1 +1,1 @@
-Copy this to your Client folderand RUN !
+Copy this to your Client folder and RUN !
