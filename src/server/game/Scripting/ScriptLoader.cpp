@@ -808,8 +808,7 @@ void AddScripts()
     AddPandarieScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
-    AddCustomScripts();
-#endif
+    #endif
 }
 
 void AddExampleScripts()
@@ -1604,18 +1603,4 @@ void AddBattlegroundScripts()
 #endif
 }
 
-#ifdef SCRIPTS
-/* This is where custom scripts' loading functions should be declared. */
 
-void AddSC_DuelReset();
-
-#endif
-
-void AddCustomScripts()
-{
-#ifdef SCRIPTS
-
-	AddSC_DuelReset();
-
-#endif
-}
