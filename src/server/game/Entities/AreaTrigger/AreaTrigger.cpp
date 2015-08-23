@@ -134,8 +134,8 @@ void AreaTrigger::Update(uint32 p_time)
             std::list<Unit*> targetList;
             radius = 10.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             for (auto itr : targetList)
@@ -148,8 +148,8 @@ void AreaTrigger::Update(uint32 p_time)
             std::list<Unit*> targetList;
             radius = 8.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -184,8 +184,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -205,8 +205,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 6.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -221,8 +221,8 @@ case 144692: // Pool of Fire Ordos
             bool affected = false;
             radius = 2.25f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -252,8 +252,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 10.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -275,8 +275,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 10.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -340,8 +340,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 30.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             for (auto itr : targetList)
@@ -362,8 +362,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -386,8 +386,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -407,8 +407,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -431,8 +431,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -452,8 +452,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             if (!targetList.empty())
@@ -474,8 +474,8 @@ case 144692: // Pool of Fire Ordos
             std::list<Unit*> targetList;
             radius = 1.0f;
 
-            WoWSource::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+			MoPCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+			MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
             VisitNearbyObject(radius, searcher);
 
             for (auto itr : targetList)

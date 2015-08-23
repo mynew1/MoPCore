@@ -90,7 +90,7 @@ public:
                 return;
             }
 
-            WoWSource::Containers::RandomResizeList(poleList, 1);
+			MoPCore::Containers::RandomResizeList(poleList, 1);
 
             for (auto creature: poleList)
                 me->EnterVehicle(creature);
