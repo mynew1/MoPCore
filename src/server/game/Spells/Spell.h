@@ -790,7 +790,7 @@ class Spell
 #endif
 };
 
-namespace WoWSource
+namespace MoPCore
 {
     struct WorldObjectSpellTargetCheck
     {

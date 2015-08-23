@@ -2059,7 +2059,7 @@ class spell_hagara_the_stormbinder_lightning_conduit : public SpellScriptLoader
 
                 std::list<Player*> players;
                 AnyPlayerOrCrystalCheck check(GetTarget(), 10.0f);
-                WoWSource::PlayerListSearcher<AnyPlayerOrCrystalCheck> searcher(GetTarget(), players, check); 
+				MoPCore::PlayerListSearcher<AnyPlayerOrCrystalCheck> searcher(GetTarget(), players, check);
                 GetTarget()->VisitNearbyObject(10.0f, searcher);
 
                 if (!players.empty())

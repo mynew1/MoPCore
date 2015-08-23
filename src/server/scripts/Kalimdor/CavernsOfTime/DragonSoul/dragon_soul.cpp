@@ -1268,10 +1268,10 @@ class spell_dragon_soul_trigger_spell_from_aoe : public SpellScriptLoader
                 if (!tempList.empty())
                 {
                     targets.clear();
-                    targets.push_back(WoWSource::Containers::SelectRandomContainerElement(tempList));
+					targets.push_back(MoPCore::Containers::SelectRandomContainerElement(tempList));
                 }
                 else
-                    WoWSource::Containers::RandomResizeList(targets, 1);
+					MoPCore::Containers::RandomResizeList(targets, 1);
             }
 
             void HandleDummy()

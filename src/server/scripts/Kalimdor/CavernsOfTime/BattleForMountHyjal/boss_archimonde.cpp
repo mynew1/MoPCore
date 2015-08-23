@@ -380,7 +380,7 @@ public:
             if (targets.empty())
                 return false;
 
-            targets.sort(WoWSource::ObjectDistanceOrderPred(me));
+			targets.sort(MoPCore::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
             if (target)
             {

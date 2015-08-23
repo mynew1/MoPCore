@@ -28,7 +28,7 @@
 #include "CellImpl.h"
 #include "SpellInfo.h"
 
-using namespace WoWSource;
+using namespace MoPCore;
 
 void VisibleNotifier::SendToSelf()
 {

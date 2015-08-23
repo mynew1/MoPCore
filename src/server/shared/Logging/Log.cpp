@@ -34,16 +34,16 @@ Log::Log() : worker(NULL)
 	SetRealmID(0);
 	m_logsTimestamp = "_" + GetTimestampStr();
 	LoadFromConfig();
-	//wowsourceLog = fopen("wowsource.log", "a");
+	//mopcore = fopen("mopcore.log", "a");
 }
 
 Log::~Log()
 {
 	Close();
 
-	fclose(wowsourceLog);
-	delete wowsourceLog;
-	wowsourceLog = NULL;
+	fclose(mopcoreLog);
+	delete mopcoreLog;
+	mopcoreLog = NULL;
 }
 
 uint8 Log::NextAppenderId()

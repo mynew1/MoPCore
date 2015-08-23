@@ -1150,9 +1150,9 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
     {
-        WoWSource::WorldObjectSpellConeTargetCheck check(coneAngle, radius, m_caster, m_spellInfo, selectionType, condList);
-        WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-        SearchTargets<WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
+		MoPCore::WorldObjectSpellConeTargetCheck check(coneAngle, radius, m_caster, m_spellInfo, selectionType, condList);
+		MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
+		SearchTargets<MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
 
         CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
@@ -1160,7 +1160,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                WoWSource::Containers::RandomResizeList(targets, maxTargets);
+				MoPCore::Containers::RandomResizeList(targets, maxTargets);
 
             // for compability with older code - add only unit and go targets
             // TODO: remove this
@@ -1182,7 +1182,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 unitTargets.push_back(m_caster);
                 if (unitTargets.size() > maxSize)
                 {
-                    unitTargets.sort(WoWSource::HealthPctOrderPred());
+					unitTargets.sort(MoPCore::HealthPctOrderPred());
                     unitTargets.resize(maxSize);
                 }
             }
@@ -1458,7 +1458,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                             }
                             else
                             {
-                                unitTargets.sort(WoWSource::UnitDistanceCompareOrderPred(m_caster));
+								unitTargets.sort(MoPCore::UnitDistanceCompareOrderPred(m_caster));
                                 Unit* victim = (*unitTargets.begin())->ToUnit();
 
                                 if (victim)
@@ -1542,7 +1542,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             {
                 if (unitTargets.size() > maxSize)
                 {
-                    unitTargets.sort(WoWSource::HealthPctOrderPred());
+					unitTargets.sort(MoPCore::HealthPctOrderPred());
                     unitTargets.resize(maxSize);
                 }
             }
@@ -1556,7 +1556,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                 if (unitTargets.size() > maxSize)
                 {
-                    unitTargets.sort(WoWSource::PowerPctOrderPred((Powers)power));
+					unitTargets.sort(MoPCore::PowerPctOrderPred((Powers)power));
                     unitTargets.resize(maxSize);
                 }
             }
@@ -1594,7 +1594,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            WoWSource::Containers::RandomResizeList(unitTargets, maxTargets);
+			MoPCore::Containers::RandomResizeList(unitTargets, maxTargets);
 
         for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
             AddUnitTarget(*itr, effMask, false);
@@ -1603,7 +1603,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if (!gObjTargets.empty())
     {
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            WoWSource::Containers::RandomResizeList(gObjTargets, maxTargets);
+			MoPCore::Containers::RandomResizeList(gObjTargets, maxTargets);
 
         for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
             AddGOTarget(*itr, effMask);
@@ -1914,13 +1914,13 @@ void Spell::SelectImplicitTrajTargets()
     float srcToDestDelta = m_targets.GetDstPos()->m_positionZ - m_targets.GetSrcPos()->m_positionZ;
 
     std::list<WorldObject*> targets;
-    WoWSource::WorldObjectSpellTrajTargetCheck check(dist2d, m_targets.GetSrcPos(), m_caster, m_spellInfo);
-    WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellTrajTargetCheck> searcher(m_caster, targets, check, GRID_MAP_TYPE_MASK_ALL);
-    SearchTargets<WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellTrajTargetCheck> > (searcher, GRID_MAP_TYPE_MASK_ALL, m_caster, m_targets.GetSrcPos(), dist2d);
+	MoPCore::WorldObjectSpellTrajTargetCheck check(dist2d, m_targets.GetSrcPos(), m_caster, m_spellInfo);
+	MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellTrajTargetCheck> searcher(m_caster, targets, check, GRID_MAP_TYPE_MASK_ALL);
+	SearchTargets<MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellTrajTargetCheck> >(searcher, GRID_MAP_TYPE_MASK_ALL, m_caster, m_targets.GetSrcPos(), dist2d);
     if (targets.empty())
         return;
 
-    targets.sort(WoWSource::ObjectDistanceOrderPred(m_caster));
+	targets.sort(MoPCore::ObjectDistanceOrderPred(m_caster));
 
     float b = tangent(m_targets.GetElevation());
     float a = (srcToDestDelta - dist2d * b) / (dist2d * dist2d);
@@ -2161,7 +2161,7 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* refere
         x = pos->GetPositionX();
         y = pos->GetPositionY();
 
-        CellCoord p(WoWSource::ComputeCellCoord(x, y));
+		CellCoord p(MoPCore::ComputeCellCoord(x, y));
         Cell cell(p);
         cell.SetNoCreate();
 
@@ -2186,9 +2186,9 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargetObjectTypes objec
     uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList);
     if (!containerTypeMask)
         return NULL;
-    WoWSource::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList);
-    WoWSource::WorldObjectLastSearcher<WoWSource::WorldObjectSpellNearbyTargetCheck> searcher(m_caster, target, check, containerTypeMask);
-    SearchTargets<WoWSource::WorldObjectLastSearcher<WoWSource::WorldObjectSpellNearbyTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, range);
+	MoPCore::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList);
+	MoPCore::WorldObjectLastSearcher<MoPCore::WorldObjectSpellNearbyTargetCheck> searcher(m_caster, target, check, containerTypeMask);
+	SearchTargets<MoPCore::WorldObjectLastSearcher<MoPCore::WorldObjectSpellNearbyTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, range);
     return target;
 }
 
@@ -2197,9 +2197,9 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
     uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList);
     if (!containerTypeMask)
         return;
-    WoWSource::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList);
-    WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-    SearchTargets<WoWSource::WorldObjectListSearcher<WoWSource::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range);
+	MoPCore::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList);
+	MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
+	SearchTargets<MoPCore::WorldObjectListSearcher<MoPCore::WorldObjectSpellAreaTargetCheck> >(searcher, containerTypeMask, m_caster, position, range);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal)
@@ -7939,14 +7939,14 @@ SpellCastResult Spell::CheckItems()
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        CellCoord p(WoWSource::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+		CellCoord p(MoPCore::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
         Cell cell(p);
 
         GameObject* ok = NULL;
-        WoWSource::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
-        WoWSource::GameObjectSearcher<WoWSource::GameObjectFocusCheck> checker(m_caster, ok, go_check);
+		MoPCore::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
+		MoPCore::GameObjectSearcher<MoPCore::GameObjectFocusCheck> checker(m_caster, ok, go_check);
 
-        TypeContainerVisitor<WoWSource::GameObjectSearcher<WoWSource::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
+		TypeContainerVisitor<MoPCore::GameObjectSearcher<MoPCore::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
         Map& map = *m_caster->GetMap();
         cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
 
@@ -9467,7 +9467,7 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
     return false;
 }
 
-namespace WoWSource
+namespace MoPCore
 {
 
 WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
@@ -9625,4 +9625,4 @@ bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }
 
-} //namespace WoWSource
+} //namespace MoPCore

@@ -36,7 +36,7 @@
 class Player;
 //class Map;
 
-namespace WoWSource
+namespace MoPCore
 {
     struct VisibleNotifier
     {

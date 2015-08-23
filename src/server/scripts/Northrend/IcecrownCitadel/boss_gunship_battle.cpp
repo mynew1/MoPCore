@@ -2592,8 +2592,8 @@ class npc_korkron_primalist: public CreatureScript
                             {
                                 std::list<Unit*> TargetList;
                                 Unit* finalTarget = me;
-                                WoWSource::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
-                                WoWSource::UnitListSearcher<WoWSource::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
+								MoPCore::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
+								MoPCore::UnitListSearcher<MoPCore::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
                                 me->VisitNearbyObject(30.0f, searcher);
                                 for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                                     if ((*itr)->GetHealthPct() < finalTarget->GetHealthPct())

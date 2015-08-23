@@ -23,7 +23,7 @@
 //! Because circular includes are bad
 extern uint32 urand(uint32 min, uint32 max);
 
-namespace WoWSource
+namespace MoPCore
 {
     namespace Containers
     {
@@ -80,6 +80,6 @@ namespace WoWSource
     }
     //! namespace Containers
 }
-//! namespace WoWSource
+//! namespace MoPCore
 
 #endif //! #ifdef CONTAINERS_H

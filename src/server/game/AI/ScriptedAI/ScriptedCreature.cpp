@@ -319,8 +319,8 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 {
     Unit* unit = NULL;
-    WoWSource::MostHPMissingInRange u_check(me, range, minHPDiff);
-    WoWSource::UnitLastSearcher<WoWSource::MostHPMissingInRange> searcher(me, unit, u_check);
+	MoPCore::MostHPMissingInRange u_check(me, range, minHPDiff);
+	MoPCore::UnitLastSearcher<MoPCore::MostHPMissingInRange> searcher(me, unit, u_check);
     me->VisitNearbyObject(range, searcher);
 
     return unit;
@@ -329,8 +329,8 @@ Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
 {
     std::list<Creature*> list;
-    WoWSource::FriendlyCCedInRange u_check(me, range);
-    WoWSource::CreatureListSearcher<WoWSource::FriendlyCCedInRange> searcher(me, list, u_check);
+	MoPCore::FriendlyCCedInRange u_check(me, range);
+	MoPCore::CreatureListSearcher<MoPCore::FriendlyCCedInRange> searcher(me, list, u_check);
     me->VisitNearbyObject(range, searcher);
     return list;
 }
@@ -338,8 +338,8 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
 std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 uiSpellid)
 {
     std::list<Creature*> list;
-    WoWSource::FriendlyMissingBuffInRange u_check(me, range, uiSpellid);
-    WoWSource::CreatureListSearcher<WoWSource::FriendlyMissingBuffInRange> searcher(me, list, u_check);
+	MoPCore::FriendlyMissingBuffInRange u_check(me, range, uiSpellid);
+	MoPCore::CreatureListSearcher<MoPCore::FriendlyMissingBuffInRange> searcher(me, list, u_check);
     me->VisitNearbyObject(range, searcher);
     return list;
 }
@@ -348,13 +348,13 @@ Player* ScriptedAI::GetPlayerAtMinimumRange(float minimumRange)
 {
     Player* player = NULL;
 
-    CellCoord pair(WoWSource::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
+	CellCoord pair(MoPCore::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(pair);
     cell.SetNoCreate();
 
-    WoWSource::PlayerAtMinimumRangeAway check(me, minimumRange);
-    WoWSource::PlayerSearcher<WoWSource::PlayerAtMinimumRangeAway> searcher(me, player, check);
-    TypeContainerVisitor<WoWSource::PlayerSearcher<WoWSource::PlayerAtMinimumRangeAway>, GridTypeMapContainer> visitor(searcher);
+	MoPCore::PlayerAtMinimumRangeAway check(me, minimumRange);
+	MoPCore::PlayerSearcher<MoPCore::PlayerAtMinimumRangeAway> searcher(me, player, check);
+	TypeContainerVisitor<MoPCore::PlayerSearcher<MoPCore::PlayerAtMinimumRangeAway>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *me->GetMap(), *me, minimumRange);
 

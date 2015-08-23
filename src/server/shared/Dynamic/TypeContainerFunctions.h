@@ -29,7 +29,7 @@
 #include "Dynamic/TypeList.h"
 #include <map>
 
-namespace WoWSource
+namespace MoPCore
 {
     /* ContainerMapList Helpers */
     // count functions

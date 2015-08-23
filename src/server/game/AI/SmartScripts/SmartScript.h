@@ -148,13 +148,13 @@ class SmartScript
         {
             GameObject* gameObject = NULL;
 
-            CellCoord p(WoWSource::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
+            CellCoord p(MoPCore::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
 
-            WoWSource::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-            WoWSource::GameObjectSearcher<WoWSource::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
+			MoPCore::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
+			MoPCore::GameObjectSearcher<MoPCore::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
 
-            TypeContainerVisitor<WoWSource::GameObjectSearcher<WoWSource::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
+			TypeContainerVisitor<MoPCore::GameObjectSearcher<MoPCore::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
             cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
 
             return gameObject;
@@ -163,13 +163,13 @@ class SmartScript
         Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
         {
             Creature* creature = NULL;
-            CellCoord p(WoWSource::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
+			CellCoord p(MoPCore::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
 
-            WoWSource::CreatureWithDbGUIDCheck target_check(searchObject, guid);
-            WoWSource::CreatureSearcher<WoWSource::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
+			MoPCore::CreatureWithDbGUIDCheck target_check(searchObject, guid);
+			MoPCore::CreatureSearcher<MoPCore::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
 
-            TypeContainerVisitor<WoWSource::CreatureSearcher <WoWSource::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
+			TypeContainerVisitor<MoPCore::CreatureSearcher <MoPCore::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
             cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
 
             return creature;

@@ -3404,7 +3404,7 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
 
-        WoWSource::SpellChargesTracker spellChargesTracker_;
+		MoPCore::SpellChargesTracker spellChargesTracker_;
 
         uint8 m_bgRoles;
 

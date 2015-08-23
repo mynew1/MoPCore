@@ -373,7 +373,7 @@ class spell_archbishop_benedictus_righteous_snear_aoe : public SpellScriptLoader
                         targets.remove(pTank);
 
                 if (targets.size() > 1)
-                    WoWSource::Containers::RandomResizeList(targets, 1);
+					MoPCore::Containers::RandomResizeList(targets, 1);
             }
 
             void HandleDummy(SpellEffIndex effIndex)

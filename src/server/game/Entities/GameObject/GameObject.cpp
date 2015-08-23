@@ -446,8 +446,8 @@ void GameObject::Update(uint32 diff)
                     // search unfriendly creature
                     if (owner)                    // hunter trap
                     {
-                        WoWSource::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                        WoWSource::UnitSearcher<WoWSource::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, ok, checker);
+						MoPCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
+						MoPCore::UnitSearcher<MoPCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, ok, checker);
                         VisitNearbyGridObject(radius, searcher);
                         if (!ok) VisitNearbyWorldObject(radius, searcher);
                     }
@@ -456,8 +456,8 @@ void GameObject::Update(uint32 diff)
                         // environmental damage spells already have around enemies targeting but this not help in case not existed GO casting support
                         // affect only players
                         Player* player = NULL;
-                        WoWSource::AnyPlayerInObjectRangeCheck checker(this, radius);
-                        WoWSource::PlayerSearcher<WoWSource::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+						MoPCore::AnyPlayerInObjectRangeCheck checker(this, radius);
+						MoPCore::PlayerSearcher<MoPCore::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
                         VisitNearbyWorldObject(radius, searcher);
                         ok = player;
                     }
@@ -998,13 +998,13 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     GameObject* trapGO = NULL;
     {
         // using original GO distance
-        CellCoord p(WoWSource::ComputeCellCoord(GetPositionX(), GetPositionY()));
+		CellCoord p(MoPCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
         Cell cell(p);
 
-        WoWSource::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
-        WoWSource::GameObjectLastSearcher<WoWSource::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
+		MoPCore::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
+		MoPCore::GameObjectLastSearcher<MoPCore::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
 
-        TypeContainerVisitor<WoWSource::GameObjectLastSearcher<WoWSource::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
+		TypeContainerVisitor<MoPCore::GameObjectLastSearcher<MoPCore::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
         cell.Visit(p, object_checker, *GetMap(), *target, range);
     }
 
@@ -1017,12 +1017,12 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
 {
     GameObject* ok = NULL;
 
-    CellCoord p(WoWSource::ComputeCellCoord(GetPositionX(), GetPositionY()));
+	CellCoord p(MoPCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
     Cell cell(p);
-    WoWSource::NearestGameObjectFishingHole u_check(*this, range);
-    WoWSource::GameObjectSearcher<WoWSource::NearestGameObjectFishingHole> checker(this, ok, u_check);
+	MoPCore::NearestGameObjectFishingHole u_check(*this, range);
+	MoPCore::GameObjectSearcher<MoPCore::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
-    TypeContainerVisitor<WoWSource::GameObjectSearcher<WoWSource::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
+	TypeContainerVisitor<MoPCore::GameObjectSearcher<MoPCore::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
     cell.Visit(p, grid_object_checker, *GetMap(), *this, range);
 
     return ok;
@@ -1489,7 +1489,7 @@ void GameObject::Use(Unit* user)
                 if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
                     for (uint32 i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
                         // m_unique_users can contain only player GUIDs
-                        if (Player* target = ObjectAccessor::GetPlayer(*this, WoWSource::Containers::SelectRandomContainerElement(m_unique_users)))
+						if (Player* target = ObjectAccessor::GetPlayer(*this, MoPCore::Containers::SelectRandomContainerElement(m_unique_users)))
                             spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
 
                 // finish owners spell

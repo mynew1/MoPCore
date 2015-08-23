@@ -21,7 +21,7 @@
 
 #include <ace/Event_Handler.h>
 
-namespace WoWSource
+namespace MoPCore
 {
 
 /// Handle termination signals

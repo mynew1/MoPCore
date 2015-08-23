@@ -489,13 +489,13 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            CellCoord pair(WoWSource::ComputeCellCoord(x, y));
+			CellCoord pair(MoPCore::ComputeCellCoord(x, y));
             Cell cell(pair);
             cell.SetNoCreate();
 
-            WoWSource::AllCreaturesOfEntryInRange check(me, entry, 100);
-            WoWSource::CreatureListSearcher<WoWSource::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-            TypeContainerVisitor<WoWSource::CreatureListSearcher<WoWSource::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
+			MoPCore::AllCreaturesOfEntryInRange check(me, entry, 100);
+			MoPCore::CreatureListSearcher<MoPCore::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+			TypeContainerVisitor<MoPCore::CreatureListSearcher<MoPCore::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
             cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
             for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)

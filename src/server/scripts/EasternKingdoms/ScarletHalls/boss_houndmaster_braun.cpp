@@ -134,13 +134,13 @@ class boss_houndmaster_braun : public CreatureScript
                 me->GetPosition(x, y, z);
 
                 {
-                    CellCoord pair(WoWSource::ComputeCellCoord(x, y));
+					CellCoord pair(MoPCore::ComputeCellCoord(x, y));
                     Cell cell(pair);
                     cell.SetNoCreate();
 
-                    WoWSource::AllCreaturesOfEntryInRange check(me, MOB_OBEDIENT_HOUND, 200);
-                    WoWSource::CreatureListSearcher<WoWSource::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-                    TypeContainerVisitor<WoWSource::CreatureListSearcher<WoWSource::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
+					MoPCore::AllCreaturesOfEntryInRange check(me, MOB_OBEDIENT_HOUND, 200);
+					MoPCore::CreatureListSearcher<MoPCore::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+					TypeContainerVisitor<MoPCore::CreatureListSearcher<MoPCore::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
                     cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
                 }
 
