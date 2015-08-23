@@ -1,5 +1,5 @@
 ################################################
-# Trinity Core World Server configuration file #
+# MoPCore World Server configuration file #
 ################################################
 [worldserver]
 
@@ -60,7 +60,7 @@ RealmID = 1
 #    DataDir
 #        Description: Data directory setting.
 #        Important:   DataDir needs to be quoted, as the string might contain space characters.
-#        Example:     "@prefix@/share/trinitycore"
+#        Example:     "@prefix@/share/MoPcore"
 #        Default:     "."
 
 DataDir = "."
@@ -85,13 +85,13 @@ LogsDir = "logs"
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;root;ascent;auth"       - (LoginDatabaseInfo)
-#                     "127.0.0.1;3306;root;ascent;world"      - (WorldDatabaseInfo)
-#                     "127.0.0.1;3306;root;ascent;characters" - (CharacterDatabaseInfo)
+#        Default:     "127.0.0.1;3306;mopcore;mopcore;auth"       - (LoginDatabaseInfo)
+#                     "127.0.0.1;3306;mopcore;mopcore;world"      - (WorldDatabaseInfo)
+#                     "127.0.0.1;3306;mopcore;mopcore;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;root;ascent;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;root;ascent;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;root;ascent;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;mopcore;mopcore;auth"
+WorldDatabaseInfo     = "127.0.0.1;3306;mopcore;mopcore;world"
+CharacterDatabaseInfo = "127.0.0.1;3306;mopcore;mopcore;characters"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -1108,8 +1108,8 @@ BeepAtStart = 1
 #    Motd
 #        Description: Message of the Day, displayed at login.
 #                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
-#        Default:     "Welcome to a Trinity Core server."
+#        Example:     "Welcome to John\'s Server@This server runs on MoPCore."
+#        Default:     "Welcome to MoPCore 5.4.8"
 
 Motd = "Welcome to MoPCore 5.4.8"
 
