@@ -735,7 +735,9 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200,
 };
 
-namespace Movement{
+namespace Movement
+{
+    class ExtraMovementStatusElement;
     class MoveSpline;
 }
 
@@ -1630,7 +1632,6 @@ class Unit : public WorldObject
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        void SendTeleportPacket(Position &oldPos);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
@@ -1654,10 +1655,9 @@ class Unit : public WorldObject
         */
         void SendMovementHover(bool apply);
         void SendMovementFeatherFall();
-        void SendMovementWaterWalking(bool enable, bool packetOnly = false);
+        void SendMovementWaterWalking();
         void SendMovementGravityChange();
         void SendMovementCanFlyChange();
-        void SendCanTurnWhileFalling(bool apply);
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
@@ -2153,10 +2153,7 @@ class Unit : public WorldObject
         void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
         bool HasUnitMovementFlag(uint32 f) const { return (m_movementInfo.flags & f) == f; }
         uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
-        void SetUnitMovementFlags(uint32 f)
-        {
-            m_movementInfo.flags = f;
-        }
+        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
         void ClearMovementData()
         {
@@ -2171,8 +2168,7 @@ class Unit : public WorldObject
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
         bool IsSplineEnabled() const;
 
-        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi, ExtraMovementStatusElement* extras = NULL);
-        void WriteMovementInfo(WorldPacket &data, ExtraMovementStatusElement* extras = NULL) const;
+        void WriteMovementUpdate(WorldPacket &data) const;
 
         float GetPositionZMinusOffset() const
         {
@@ -2184,7 +2180,6 @@ class Unit : public WorldObject
         }
 
         void SetControlled(bool apply, UnitState state);
-        void SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index);
 
         void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }
@@ -2268,9 +2263,9 @@ class Unit : public WorldObject
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
         void BuildMovementPacket(ByteBuffer *data) const;
+        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = NULL);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
-        void RemoveMovingFlags(){ return m_movementInfo.StopMoving(); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
@@ -2466,6 +2461,7 @@ class Unit : public WorldObject
         void SetStunned(bool apply);
         void SetRooted(bool apply);
 
+        uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
     private:
         class AINotifyTask;
         class VisibilityUpdateTask;

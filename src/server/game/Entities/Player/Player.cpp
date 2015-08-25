@@ -2387,12 +2387,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     if (fields[20].GetUInt32())
         charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
-    {
-        if (!fields[22].GetString().empty())
-            charFlags |= CHARACTER_FLAG_DECLINED;
-    }
-    else
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[22].GetString().empty())
         charFlags |= CHARACTER_FLAG_DECLINED;
 
     uint32 customizationFlag = 0;
@@ -2422,55 +2417,50 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     // Packet content flags
     bitBuffer->WriteBit(guildGuid[4]);
     bitBuffer->WriteBit(guid[0]);
-    bitBuffer->WriteBit(guid[3]);
-    bitBuffer->WriteBit(guid[6]);
-    bitBuffer->WriteBit(guildGuid[1]);
-    bitBuffer->WriteBit(guid[1]);
-    bitBuffer->WriteBit(guildGuid[2]);
     bitBuffer->WriteBit(guildGuid[3]);
-    bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
-    bitBuffer->WriteBit(guid[2]);
-    bitBuffer->WriteBit(guildGuid[0]);
-    bitBuffer->WriteBit(guildGuid[7]);
-    bitBuffer->WriteBits(uint32(name.length()), 6);
-    bitBuffer->WriteBit(0); // Has Been boosted to level 90
-    bitBuffer->WriteBit(guildGuid[6]);
-    bitBuffer->WriteBit(guid[4]);
-    bitBuffer->WriteBit(guildGuid[5]);
-    bitBuffer->WriteBit(guid[5]);
+    bitBuffer->WriteBit(guid[3]);
     bitBuffer->WriteBit(guid[7]);
+    bitBuffer->WriteBit(0); // Can boost ?
+    bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
+    bitBuffer->WriteBit(guid[6]);
+    bitBuffer->WriteBit(guildGuid[6]);
+    bitBuffer->WriteBits(uint32(name.length()), 6);
+    bitBuffer->WriteBit(guid[1]);
+    bitBuffer->WriteBit(guildGuid[1]);
+    bitBuffer->WriteBit(guildGuid[0]);
+    bitBuffer->WriteBit(guid[4]);
+    bitBuffer->WriteBit(guildGuid[7]);
+    bitBuffer->WriteBit(guid[2]);
+    bitBuffer->WriteBit(guid[5]);
+    bitBuffer->WriteBit(guildGuid[2]);
+    bitBuffer->WriteBit(guildGuid[5]);
 
     // Character data
-    *dataBuffer << uint8(face);                                 // Face
+    *dataBuffer << uint32(0);                                   // UNK02 - might be swaped with UNK03
 
-    dataBuffer->WriteByteSeq(guildGuid[7]);
+    dataBuffer->WriteByteSeq(guid[1]);
 
-    *dataBuffer << uint8(playerRace);                           // Race
+    *dataBuffer << uint8(slot);                                 // List order
+    *dataBuffer << uint8(hairStyle);                            // Hair style
 
-    dataBuffer->WriteByteSeq(guid[5]);
     dataBuffer->WriteByteSeq(guildGuid[2]);
-    dataBuffer->WriteByteSeq(guid[6]);
+    dataBuffer->WriteByteSeq(guildGuid[0]);
+    dataBuffer->WriteByteSeq(guildGuid[6]);
    
-    *dataBuffer << uint32(charFlags);                           // Character flags
-    *dataBuffer << uint32(zone);                                // Zone id
+    dataBuffer->append(name.c_str(), name.length());            // Name
+
     
     dataBuffer->WriteByteSeq(guildGuid[3]);
     
-    *dataBuffer << uint32(petLevel);                            // Pet level
-    *dataBuffer << uint32(petDisplayId);                        // Pet DisplayID
-    *dataBuffer << uint32(0);
+    *dataBuffer << float(x);                                    // X
     *dataBuffer << uint32(0);                                   // UNK02 - might be swaped with UNK03 and the pet fields 
     
-    dataBuffer->WriteByteSeq(guid[3]);
-    dataBuffer->WriteByteSeq(guid[0]);
 
-    *dataBuffer << uint8(facialHair);                           // Facial hair
-    *dataBuffer << uint8(gender);                               // Gender
+    *dataBuffer << uint8(face);                                 // Face
+    *dataBuffer << uint8(playerClass);                          // Class
     
-    dataBuffer->WriteByteSeq(guildGuid[0]);
+    dataBuffer->WriteByteSeq(guildGuid[5]);
     
-    *dataBuffer << uint8(hairStyle);                            // Hair style
-    *dataBuffer << uint8(level);                                // Level
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -2500,43 +2490,50 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
                 break;
         }
         
-        *dataBuffer << uint32(proto->DisplayInfoID);
         *dataBuffer << uint32(enchant ? enchant->aura_id : 0);
         *dataBuffer << uint8(proto->InventoryType);
+        *dataBuffer << uint32(proto->DisplayInfoID);
     }
 
     
-    *dataBuffer << float(z);                                    // Z
+    
+
+    *dataBuffer << uint32(customizationFlag);                   // Character customization flags
+    
+    dataBuffer->WriteByteSeq(guid[3]);
+    dataBuffer->WriteByteSeq(guid[5]);
+    
+    *dataBuffer << uint32(petFamily);                           // Pet family
+
+    dataBuffer->WriteByteSeq(guildGuid[4]);
+
+    
+    *dataBuffer << uint32(mapId);                               // Map Id
+    *dataBuffer << uint8(playerRace);                           // Race
+    *dataBuffer << uint8(skin);                                 // Skin
     
     dataBuffer->WriteByteSeq(guildGuid[1]);
 
-    *dataBuffer << float(y);                                    // Y
-    *dataBuffer << uint8(skin);                                 // Skin
-    *dataBuffer << uint8(slot);                                 // List order
+    *dataBuffer << uint8(level);                                // Level
     
-    dataBuffer->WriteByteSeq(guildGuid[5]);
-    dataBuffer->WriteByteSeq(guid[1]);
-    
-    *dataBuffer << uint32(0);                                   // UNK03 - might be swaped with UNK02 and the pet fields 
-    *dataBuffer << float(x);                                    // X
-
-    if (name.length())
-        dataBuffer->append(name.c_str(), name.length());        // Name
-    
-    *dataBuffer << uint32(mapId);                               // Map Id
-    *dataBuffer << uint32(petFamily);                           // Pet family
-    
-    *dataBuffer << uint8(hairColor);                            // Hair color
-    *dataBuffer << uint8(playerClass);                          // Class
-    
-    dataBuffer->WriteByteSeq(guildGuid[4]);
+    dataBuffer->WriteByteSeq(guid[0]);
     dataBuffer->WriteByteSeq(guid[2]);
     
-    *dataBuffer << uint32(customizationFlag);
+    *dataBuffer << uint8(hairColor);                            // Hair color
+    *dataBuffer << uint8(gender);                               // Gender
+    *dataBuffer << uint8(facialHair);                           // Facial hair
     
-    dataBuffer->WriteByteSeq(guid[7]);
-    dataBuffer->WriteByteSeq(guildGuid[6]);
+    *dataBuffer << uint32(petLevel);                            // Pet level
     dataBuffer->WriteByteSeq(guid[4]);
+    dataBuffer->WriteByteSeq(guid[7]);
+    *dataBuffer << float(y);                                    // Y
+    *dataBuffer << uint32(petDisplayId);                        // Pet DisplayID
+    *dataBuffer << uint32(0);                                   // UNK03 - might be swaped with UNK02 and the pet fields
+    dataBuffer->WriteByteSeq(guid[6]);
+    *dataBuffer << uint32(charFlags);                           // Character flags
+    dataBuffer->WriteByteSeq(guildGuid[7]);
+    *dataBuffer << uint32(zone);                                // Zone id
+    *dataBuffer << float(z);                                    // Z
 
     return true;
 }
@@ -4725,13 +4722,13 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     WorldPacket data(SMSG_SUPERCEDED_SPELL);
                     data.WriteBits(1, 22);
                     data.WriteBits(1, 22);
-                    data << uint32(next_active_spell_id);
                     data << uint32(spellId);
+                    data << uint32(next_active_spell_id);
                     GetSession()->SendPacket(&data);
                 }
                 else
                 {
-                    WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
+                    WorldPacket data(SMSG_REMOVED_SPELL, 4);
                     data.WriteBits(1, 22);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
@@ -5277,7 +5274,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
+        WorldPacket data(SMSG_REMOVED_SPELL, 4);
         data.WriteBits(1, 22);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
@@ -6294,7 +6291,7 @@ void Player::BuildPlayerRepop()
     // convert player body to ghost
     SetHealth(1);
 
-    SendMovementWaterWalking(true);
+    SendMovementSetWaterWalking(true);
     if (!GetSession()->isLogingOut())
         SetRooted(false);
 
@@ -6339,7 +6336,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SendMovementWaterWalking(false);
+    SendMovementSetWaterWalking(false);
     SetRooted(false);
 
     m_deathTimer = 0;
@@ -18895,26 +18892,14 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
 {
     if (player)
     {
-        ObjectGuid guid = player->GetGUID();
 
-        WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+        WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
+        data << uint64(player->GetGUID());
 
-        uint8 bitOrder[8] = { 2, 7, 3, 5, 4, 1, 6, 0 };
-        data.WriteBitInOrder(guid, bitOrder);
-        data.FlushBits();
-
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[3]);
         data << uint8(msg);                                 // valid values: 0-8
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
 
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_QUEST_PUSH_RESULT");
     }
 }
 
@@ -24203,25 +24188,30 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     if (it)
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
+        ObjectGuid vGuid = pVendor->GetGUID();
 
-        WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
+        WorldPacket data(SMSG_BUY_SUCCEEDED, 1 + 8 + 4 + 4 + 4);
 
-        ObjectGuid vendorGuid = pVendor->GetGUID();
+        data.WriteBit(vGuid[3]);
+        data.WriteBit(vGuid[4]);
+        data.WriteBit(vGuid[7]);
+        data.WriteBit(vGuid[6]);
+        data.WriteBit(vGuid[0]);
+        data.WriteBit(vGuid[2]);
+        data.WriteBit(vGuid[1]);
+        data.WriteBit(vGuid[5]);
 
-        uint8 bitsOrder[8] = { 7, 0, 6, 1, 5, 2, 4, 3 };
-        data.WriteBitInOrder(vendorGuid, bitsOrder);
-
-        data.WriteByteSeq(vendorGuid[1]);
-        data.WriteByteSeq(vendorGuid[5]);
-        data.WriteByteSeq(vendorGuid[2]);
-        data.WriteByteSeq(vendorGuid[3]);
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data.WriteByteSeq(vendorGuid[0]);
-        data.WriteByteSeq(vendorGuid[6]);
+        data.WriteByteSeq(vGuid[6]);
+        data.WriteByteSeq(vGuid[7]);
         data << uint32(count);
-        data.WriteByteSeq(vendorGuid[7]);
+        data.WriteByteSeq(vGuid[1]);
+        data.WriteByteSeq(vGuid[3]);
+        data.WriteByteSeq(vGuid[5]);
+        data.WriteByteSeq(vGuid[2]);
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data.WriteByteSeq(vendorGuid[4]);
+        data.WriteByteSeq(vGuid[0]);
+        data.WriteByteSeq(vGuid[4]);
+        data << uint32(vendorslot + 1);                   // numbered from 1 at client
         GetSession()->SendPacket(&data);
         SendNewItem(it, count, true, false, false);
 
@@ -25684,7 +25674,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     //4374 - summon pet spell in packet - 111896, 111895, 111859, 111897, 111898
     //5376
 
-    data.Initialize(SMSG_UNLEARNED_SPELLS);
+    data.Initialize(SMSG_SEND_UNLEARNED_SPELLS, 4);
     data.WriteBits(0, 22);                         // count, read uint32 spells id
     data.FlushBits();
     GetSession()->SendPacket(&data);
@@ -26142,7 +26132,7 @@ void Player::SendAurasForTarget(Unit* target)
         target->SendMovementFeatherFall();
 
     if (target->HasAuraType(SPELL_AURA_WATER_WALK))
-        target->SendMovementWaterWalking(true, true);
+        target->SendMovementWaterWalking();
 
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SendMovementHover(true);
@@ -28326,7 +28316,7 @@ void Player::AddKnownCurrency(uint32 itemId)
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
 {
-    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == CMSG_MOVE_FALL_LAND)
+    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.fallTime, minfo.pos.GetPositionZ());
 }
 
@@ -29744,50 +29734,163 @@ void Player::SendMovementSetCanFly(bool apply)
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
-    PacketSender(this, NULL_OPCODE, apply ?
-        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
-        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
+    ObjectGuid guid = GetGUID();
+    if (apply)
+    {
+        WorldPacket data(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
+        uint8 bitOrder[8] = {5, 0, 2, 3, 4, 7, 6, 1};
+        data.WriteBitInOrder(guid, bitOrder);
+
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[5]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[0]);
+        SendDirectMessage(&data);
+    }
+    else
+    {
+        WorldPacket data(SMSG_MOVE_UNSET_CAN_TRANS_BETWEEN_SWIM_AND_FLY, 12);
+        uint8 bitOrder[8] = {3, 1, 6, 2, 4, 5, 7, 0};
+        data.WriteBitInOrder(guid, bitOrder);
+
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[2]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[5]);
+        SendDirectMessage(&data);
+    }
 }
 
 void Player::SendMovementSetHover(bool apply)
 {
+    ObjectGuid guid = GetGUID();
     if (apply)
-        PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+    {
+        WorldPacket data(SMSG_MOVE_SET_HOVER, 12);
+        uint8 bitOrder[8] = {5, 0, 2, 3, 1, 7, 6, 0};
+        data.WriteBitInOrder(guid, bitOrder);
+
+        data.WriteByteSeq(guid[7]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        SendDirectMessage(&data);
+    }
     else
-        PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
+    {
+        WorldPacket data(SMSG_MOVE_UNSET_HOVER, 12);
+        data << uint32(0);          //! movement counter
+        uint8 bitOrder[8] = {7, 4, 1, 6, 2, 0, 3, 5};
+        data.WriteBitInOrder(guid, bitOrder);
+        uint8 byteOrder[8] = {7, 0, 1, 6, 5, 4, 3, 2};
+        data.WriteBytesSeq(guid, byteOrder);
+
+        SendDirectMessage(&data);
+    }
 }
 
+void Player::SendMovementSetWaterWalking(bool apply)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data;
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_WATER_WALK, 1 + 4 + 8);
+        uint8 bitOrder[8] = {7, 6, 0, 1, 5, 4, 3, 2};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[2]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[0]);
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_LAND_WALK, 1 + 4 + 8);
+        data << uint32(0);          //! movement counter
+        uint8 bitOrder[8] = {5, 4, 3, 2, 0, 7, 1, 6};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.FlushBits();
+        uint8 byteOrder[8] = {1, 0, 2, 6, 3, 4, 5, 7};
+        data.WriteBytesSeq(guid, byteOrder);
+    }
+    SendDirectMessage(&data);
+}
+void Player::SendMovementSetFeatherFall(bool apply)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data;
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_FEATHER_FALL, 1 + 4 + 8);
+        uint8 bitOrder[8] = {7, 3, 2, 1, 6, 0, 4, 5};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteByteSeq(guid[7]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[5]);
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_NORMAL_FALL, 1 + 4 + 8);
+        uint8 bitOrder[8] = {2, 1, 5, 0, 6, 4, 7, 3};
+        data.WriteBitInOrder(guid, bitOrder);
+        data << uint32(0);          //! movement counter
+        uint8 byteOrder[8] = {2, 6, 4, 5, 7, 3, 1, 0};
+        data.WriteBytesSeq(guid, byteOrder);
+    }
+    SendDirectMessage(&data);
+}
 void Player::SendMovementSetCollisionHeight(float height)
 {
-    CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID));
 
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
 
-    data.WriteBit(!mountDisplayInfo); // mountDisplayInfo scale, inverse
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[1]);
-    data.WriteBits(3, 2);                   // Unk, 3 on retail sniff
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
     data.WriteBit(guid[4]);
-
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[3]);
+    data.WriteBits(0, 5);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+    data.FlushBits();
+    data << uint32(sWorld->GetGameTime());   // Packet counter
     data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);    
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[2]);
-    data << float(height);
-    data << float(1.0f);
-    data << uint32(sWorld->GetGameTime());  // Packet counter
-    data.WriteByteSeq(guid[3]);
-    if (mountDisplayInfo)
-        data << uint32(mountDisplayInfo->Displayid);
     data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
+    data << float(height);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);    
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[3]);
 
     SendDirectMessage(&data);
 }
@@ -30326,4 +30429,294 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
 
         hasForcedMovement = false;
     }
+}
+
+void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::ExtraMovementStatusElement* extras /*= NULL*/)
+{
+    MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
+    if (sequence == NULL)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::ReadMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
+        return;
+    }
+	
+    bool hasMovementFlags = false;
+    bool hasMovementFlags2 = false;
+    bool hasTimestamp = false;
+    bool hasOrientation = false;
+    bool hasTransportData = false;
+    bool hasTransportTime2 = false;
+    bool hasTransportTime3 = false;
+    bool hasPitch = false;
+    bool hasFallData = false;
+    bool hasFallDirection = false;
+    bool hasSplineElevation = false;
+    bool hasUnkTime = false;
+    uint32 counterCount = 0u;
+
+    ObjectGuid guid;
+    ObjectGuid tguid;
+
+    for (; *sequence != MSEEnd; ++sequence)
+    {
+        MovementStatusElements const& element = *sequence;
+
+        switch (element)
+        {
+            case MSEHasGuidByte0:
+            case MSEHasGuidByte1:
+            case MSEHasGuidByte2:
+            case MSEHasGuidByte3:
+            case MSEHasGuidByte4:
+            case MSEHasGuidByte5:
+            case MSEHasGuidByte6:
+            case MSEHasGuidByte7:
+                guid[element - MSEHasGuidByte0] = data.ReadBit();
+                break;
+            case MSEHasTransportGuidByte0:
+            case MSEHasTransportGuidByte1:
+            case MSEHasTransportGuidByte2:
+            case MSEHasTransportGuidByte3:
+            case MSEHasTransportGuidByte4:
+            case MSEHasTransportGuidByte5:
+            case MSEHasTransportGuidByte6:
+            case MSEHasTransportGuidByte7:
+                if (hasTransportData)
+                    tguid[element - MSEHasTransportGuidByte0] = data.ReadBit();
+                break;
+            case MSEGuidByte0:
+            case MSEGuidByte1:
+            case MSEGuidByte2:
+            case MSEGuidByte3:
+            case MSEGuidByte4:
+            case MSEGuidByte5:
+            case MSEGuidByte6:
+            case MSEGuidByte7:
+                data.ReadByteSeq(guid[element - MSEGuidByte0]);
+                break;
+            case MSETransportGuidByte0:
+            case MSETransportGuidByte1:
+            case MSETransportGuidByte2:
+            case MSETransportGuidByte3:
+            case MSETransportGuidByte4:
+            case MSETransportGuidByte5:
+            case MSETransportGuidByte6:
+            case MSETransportGuidByte7:
+                if (hasTransportData)
+                    data.ReadByteSeq(tguid[element - MSETransportGuidByte0]);
+                break;
+            case MSEHasMovementFlags:
+                hasMovementFlags = !data.ReadBit();
+                break;
+            case MSEHasMovementFlags2:
+                hasMovementFlags2 = !data.ReadBit();
+                break;
+            case MSEHasTimestamp:
+                hasTimestamp = !data.ReadBit();
+                break;
+            case MSEHasOrientation:
+                hasOrientation = !data.ReadBit();
+                break;
+            case MSEHasTransportData:
+                hasTransportData = data.ReadBit();
+                break;
+            case MSEHasTransportTime2:
+                if (hasTransportData)
+                    hasTransportTime2 = data.ReadBit();
+                break;
+            case MSEHasTransportTime3:
+                if (hasTransportData)
+                    hasTransportTime3 = data.ReadBit();
+                break;
+            case MSEHasPitch:
+                hasPitch = !data.ReadBit();
+                break;
+            case MSEHasFallData:
+                hasFallData = data.ReadBit();
+                break;
+            case MSEHasFallDirection:
+                if (hasFallData)
+                    hasFallDirection = data.ReadBit();
+                break;
+            case MSEHasSplineElevation:
+                hasSplineElevation = !data.ReadBit();
+                break;
+            case MSEHasSpline:
+                data.ReadBit();
+                break;
+            case MSEMovementFlags:
+                if (hasMovementFlags)
+                    mi->flags = data.ReadBits(30);
+                break;
+            case MSEMovementFlags2:
+                if (hasMovementFlags2)
+                    mi->flags2 = data.ReadBits(13);
+                break;
+            case MSETimestamp:
+                if (hasTimestamp)
+                    data >> mi->time;
+                break;
+            case MSEPositionX:
+                data >> mi->pos.m_positionX;
+                break;
+            case MSEPositionY:
+                data >> mi->pos.m_positionY;
+                break;
+            case MSEPositionZ:
+                data >> mi->pos.m_positionZ;
+                break;
+            case MSEOrientation:
+                if (hasOrientation)
+                    mi->pos.SetOrientation(data.read<float>());
+                break;
+            case MSETransportPositionX:
+                if (hasTransportData)
+                    data >> mi->t_pos.m_positionX;
+                break;
+            case MSETransportPositionY:
+                if (hasTransportData)
+                    data >> mi->t_pos.m_positionY;
+                break;
+            case MSETransportPositionZ:
+                if (hasTransportData)
+                    data >> mi->t_pos.m_positionZ;
+                break;
+            case MSETransportOrientation:
+                if (hasTransportData)
+                    mi->t_pos.SetOrientation(data.read<float>());
+                break;
+            case MSETransportSeat:
+                if (hasTransportData)
+                    data >> mi->t_seat;
+                break;
+            case MSETransportTime:
+                if (hasTransportData)
+                    data >> mi->t_time;
+                break;
+            case MSETransportTime2:
+                if (hasTransportData && hasTransportTime2)
+                    data >> mi->t_time2;
+                break;
+            case MSETransportTime3:
+                if (hasTransportData && hasTransportTime3)
+                    data >> mi->t_time3;
+                break;
+            case MSEPitch:
+                if (hasPitch)
+                    mi->pitch = G3D::wrap(data.read<float>(), float(-M_PI), float(M_PI));
+                break;
+            case MSEFallTime:
+                if (hasFallData)
+                    data >> mi->fallTime;
+                break;
+            case MSEFallVerticalSpeed:
+                if (hasFallData)
+                    data >> mi->j_zspeed;
+                break;
+            case MSEFallCosAngle:
+                if (hasFallData && hasFallDirection)
+                    data >> mi->j_cosAngle;
+                break;
+            case MSEFallSinAngle:
+                if (hasFallData && hasFallDirection)
+                    data >> mi->j_sinAngle;
+                break;
+            case MSEFallHorizontalSpeed:
+                if (hasFallData && hasFallDirection)
+                    data >> mi->j_xyspeed;
+                break;
+            case MSESplineElevation:
+                if (hasSplineElevation)
+                    data >> mi->splineElevation;
+                break;
+            case MSECounterCount:
+                counterCount = data.ReadBits(22);
+                break;
+            case MSECounter:
+                for (int i = 0; i != counterCount; i++)
+                    data.read_skip<uint32>();   /// @TODO: Maybe compare it with m_movementCounter to verify that packets are sent & received in order?
+                break;
+            case MSEHasUnkTime:
+                hasUnkTime = !data.ReadBit();
+                break;
+            case MSEUnkTime:
+                if (hasUnkTime)
+                    data.read_skip<uint32>();
+                break;
+            case MSEZeroBit:
+            case MSEOneBit:
+                data.ReadBit();
+                break;
+            case MSEExtraElement:
+                extras->ReadNextElement(data);
+                break;
+            default:
+                ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
+                break;
+        }
+    }
+
+    mi->guid = guid;
+    mi->t_guid = tguid;
+	
+    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
+    //! Might be subject to latency, so just remove improper flags.
+    #ifdef TRINITY_DEBUG
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
+    { \
+        if (check) \
+        { \
+            sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
+                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUIDLow(), maskToRemove); \
+            mi->RemoveMovementFlag((maskToRemove)); \
+        } \
+    }
+    #else
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
+        if (check) \
+            mi->RemoveMovementFlag((maskToRemove));
+    #endif
+
+
+    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
+        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
+        It will freeze clients that receive this player's movement info.
+    */
+   //With this, we can't detect cheaters
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
+        MOVEMENTFLAG_ROOT);
+
+    //! Cannot hover without SPELL_AURA_HOVER
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !HasAuraType(SPELL_AURA_HOVER),
+        MOVEMENTFLAG_HOVER);
+
+    //! Cannot ascend and descend at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
+        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+
+    //! Cannot move left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+
+    //! Cannot strafe left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
+        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+
+    //! Cannot pitch up and down at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
+        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+
+    //! Cannot move forwards and backwards at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
+        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);    
+
+    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !HasAuraType(SPELL_AURA_FEATHER_FALL),
+        MOVEMENTFLAG_FALLING_SLOW);    
+
+    #undef REMOVE_VIOLATING_FLAGS
+
+	if (GetUInt32Value(UNIT_NPC_EMOTESTATE))
+        SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
 }

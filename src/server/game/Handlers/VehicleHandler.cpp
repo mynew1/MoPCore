@@ -25,28 +25,21 @@
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
     uint64 vehicleGUID = _player->GetCharmGUID();
-    if (!vehicleGUID) // something wrong here...
-    {
-        recvData.rfinish(); // prevent warnings spam
-        return;
-    }
+
+    //{
+    //    recvData.rfinish();                                // prevent warnings spam
+    //    return;
+    //}
     // Too lazy to parse all data, just read pos and forge pkt
     MovementInfo mi;
     _player->ReadMovementInfo(recvData, &mi);
-    mi.guid = _player->GetGUID();
 
-    uint32 mstime = getMSTime();
-    if (m_clientTimeDelay == 0)
-        m_clientTimeDelay = mstime - mi.time;
 
-    mi.time = mi.time + m_clientTimeDelay + 0;
 
     _player->m_movementInfo = mi;
 
-    WorldPacket data(SMSG_MOVE_UPDATE);
-    _player->WriteMovementInfo(data);
-    _player->SendMessageToSet(&data, _player);
 
     _player->ExitVehicle();
 

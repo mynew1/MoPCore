@@ -2449,12 +2449,12 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
                             if (player->HasAura(WARLOCK_SOULBURN_AURA))
                                 player->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
 
-                        WorldPacket data(SMSG_MOVE_UPDATE);
+                        WorldPacket data(SMSG_PLAYER_MOVE);
                         player->m_movementInfo.pos.m_positionX = player->GetPositionX();
                         player->m_movementInfo.pos.m_positionY = player->GetPositionY();
                         player->m_movementInfo.pos.m_positionZ = player->GetPositionZ();
                         player->m_movementInfo.pos.m_orientation = player->GetOrientation();
-                        player->WriteMovementInfo(data);
+                        
                         player->SendMessageToSet(&data, player);
                     }
                 }
