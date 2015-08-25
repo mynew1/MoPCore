@@ -237,20 +237,20 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     WorldPacket data(SMSG_CHAR_ENUM);
 
-    uint32 unkCount = 0;
     uint32 charCount = 0;
     ByteBuffer bitBuffer;
     ByteBuffer dataBuffer;
 
-    bitBuffer.WriteBit(1); // Must send 1, else receive CHAR_LIST_FAILED error
-    bitBuffer.WriteBits(unkCount, 21); // unk uint32 count
 
     if (result)
     {
         _allowedCharsToLogin.clear();
 
         charCount = uint32(result->GetRowCount());
+        bitBuffer.reserve(24 * charCount / 8);
+        dataBuffer.reserve(charCount * 381);
         
+		bitBuffer.WriteBits(0, 21); // unk uint32 count
         bitBuffer.WriteBits(charCount, 16);
 
         do
@@ -259,20 +259,24 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
 
-            if (!sWorld->HasCharacterNameData(guidLow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                 sWorld->AddCharacterNameData(guidLow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
 
             _allowedCharsToLogin.insert(guidLow);
         }
         while (result->NextRow());
+        bitBuffer.WriteBit(1); // Sucess
+        bitBuffer.FlushBits();
     }
     else
+	{
+        bitBuffer.WriteBits(0, 21);
         bitBuffer.WriteBits(0, 16);
-
+        bitBuffer.WriteBit(1); // Success
     bitBuffer.FlushBits();
+	}
 
     data.append(bitBuffer);
-    if (dataBuffer.size())
+
+    if (charCount)
         data.append(dataBuffer);
 
     SendPacket(&data);
@@ -822,7 +826,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
     // Prevent flood of CMSG_PLAYER_LOGIN
     playerLoginCounter++;
-    if (playerLoginCounter > 10)
+    if (playerLoginCounter > 5)
     {
         sLog->OutPandashan("Player kicked due to flood of CMSG_PLAYER_LOGIN");
         KickPlayer();
@@ -842,11 +846,23 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     float farClip = 0.0f;
     recvData >> farClip;
 
-    uint8 bitOrder[8] = { 7, 6, 0, 4, 5, 2, 3, 1 };
-    recvData.ReadBitInOrder(playerGuid, bitOrder);
+    playerGuid[1] = recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    playerGuid[0] = recvData.ReadBit();
 
-    uint8 byteOrder[8] = { 5, 0, 1, 6, 7, 2, 3, 4 };
-    recvData.ReadBytesSeq(playerGuid, byteOrder);
+    recvData.ReadByteSeq(playerGuid[5]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(playerGuid[4]);
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadByteSeq(playerGuid[3]);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %u) logging in", GUID_LOPART(playerGuid));
 
@@ -1234,12 +1250,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
             pCurrChar->CastSpell(pCurrChar, 20584, true, 0);// auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
         pCurrChar->CastSpell(pCurrChar, 8326, true, 0);     // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
-        pCurrChar->SendMovementWaterWalking(true);
+        pCurrChar->SendMovementSetWaterWalking(true);
     }
 
     pCurrChar->ContinueTaxiFlight();
     //pCurrChar->LoadPet();
-    uint32 time7 = getMSTime() - time6;
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
@@ -1275,9 +1290,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
-    pCurrChar->SendCUFProfiles();
+    data.Initialize(SMSG_LOAD_CUF_PROFILES);
 
-    uint32 time8 = getMSTime() - time7;
+    uint8 cufProfilesRawData[] =
+    { 0x00, 0x00, 0x22, 0x01, 0x29, 0x13, 0x80, 0x00, 0x00, 0x24, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x50, 0x72, 0x69, 0x6E, 0x63, 0x69, 0x70, 0x61, 0x6C, 0x00, 0x00 };
+
+    for (int i = 0; i < 31; i++)
+        data << cufProfilesRawData[i];
+
+    SendPacket(&data);
 
     // Hackfix Remove Talent spell - Remove Glyph spell
     pCurrChar->learnSpell(111621, false); // Reset Glyph
@@ -1297,20 +1319,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     m_playerLoading = false;
 
     // fix exploit with Aura Bind Sight
-    pCurrChar->StopCastingBindSight();
-    pCurrChar->StopCastingCharm();
-    pCurrChar->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
-    uint32 time9 = getMSTime() - time8;
 
-    uint32 totalTime = getMSTime() - time;
-    if (totalTime > 70)
-        sLog->OutPandashan("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 
     // Fix chat with transfert / rename
-    sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
 
     delete holder;
 }

@@ -832,10 +832,6 @@ public:
             creature->SetPosition(x, y, z, o);
             creature->GetMotionMaster()->Initialize();
 
-            Position oldPos;
-            creature->GetPosition(&oldPos);
-            creature->Relocate(x, y, z, o);
-            creature->SendTeleportPacket(oldPos);
 
             if (creature->isAlive())                            // dead creature will reset movement generator at respawn
             {
