@@ -98,7 +98,7 @@ m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
-m_latency(0), m_clientTimeDelay(0), m_TutorialsChanged(false), recruiterId(recruiter),
+m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
 isRecruiter(isARecruiter), timeLastWhoCommand(0),
 timeLastChannelInviteCommand(0), timeLastGroupInviteCommand(0), timeLastGuildInviteCommand(0), timeLastChannelPassCommand(0),
 timeLastChannelMuteCommand(0), timeLastChannelBanCommand(0), timeLastChannelUnbanCommand(0), timeLastChannelAnnounceCommand(0),
@@ -110,7 +110,7 @@ timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
 playerLoginCounter(0),
 timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
-m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), timeLastSellItemOpcode(0), timeLastBuyItemOpcode(0), timeLastBuyItemSlotOpcode(0)
+m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), timeLastSellItemOpcode(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -211,12 +211,12 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     if (!m_Socket)
         return;
 
-    if (packet->GetOpcode() == NULL_OPCODE && !forced)
+    if (packet->GetOpcode() == NULL_OPCODE)
     {
         sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of NULL_OPCODE to %s", GetPlayerName(false).c_str());
         return;
     }
-    else if (packet->GetOpcode() == UNKNOWN_OPCODE && !forced)
+    else if (packet->GetOpcode() == UNKNOWN_OPCODE)
     {
         sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of UNKNOWN_OPCODE to %s", GetPlayerName(false).c_str());
         return;
@@ -268,7 +268,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (m_Socket->SendPacket(packet) == -1)
         m_Socket->CloseSocket();
-}
+} 
 
 /// Add an incoming packet to the queue
 void WorldSession::QueuePacket(WorldPacket* new_packet)
@@ -499,9 +499,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 void WorldSession::LogoutPlayer(bool Save)
 {
     // fix exploit with Aura Bind Sight
-    _player->StopCastingBindSight();
-    _player->StopCastingCharm();
-    _player->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
 
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
@@ -568,18 +565,6 @@ void WorldSession::LogoutPlayer(bool Save)
         {
             _player->RepopAtGraveyard();
             _player->SetPendingBind(0, 0);
-        }
-        else if (_player->GetVehicleBase() && _player->isInCombat())
-        {
-            _player->KillPlayer();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
-        }
-        else if (_player->isInCombat() && sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_NORMAL && _player->IsPvP())
-        {
-            _player->KillPlayer();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
         }
 
         //drop a flag if player is carrying it
@@ -1066,6 +1051,18 @@ void WorldSession::SendAddonsInfo()
 
     SendPacket(&data);
 }
+void WorldSession::SendTimezoneInformation()
+{
+    char timezoneString[256];
+    sprintf(timezoneString, "Etc/UTC"); // The method above cannot be used, because of non-english OS translations, so we send const data (possible strings are hardcoded in the client because of the same reason)
+    WorldPacket data(SMSG_SET_TIME_ZONE_INFORMATION, 2 + strlen(timezoneString) * 2);
+    data.WriteBits(strlen(timezoneString), 7);
+    data.WriteBits(strlen(timezoneString), 7);
+    data.FlushBits();
+    data.WriteString(timezoneString);
+    data.WriteString(timezoneString);
+    SendPacket(&data);
+}
 
 bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 {
@@ -1116,25 +1113,13 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
     }
 
     _filterAddonMessages = true;
-}
 
-void WorldSession::SendTimezoneInformation()
-{
-    char timezoneString[256];
 
     // TIME_ZONE_INFORMATION timeZoneInfo;
     // GetTimeZoneInformation(&timeZoneInfo);
     // wcstombs(timezoneString, timeZoneInfo.StandardName, sizeof(timezoneString));
 
-    sprintf(timezoneString, "Etc/UTC"); // The method above cannot be used, because of non-english OS translations, so we send const data (possible strings are hardcoded in the client because of the same reason)
 
-    WorldPacket data(SMSG_TIME_ZONE_INFORMATION, 2 + strlen(timezoneString) * 2);
-    data.WriteBits(strlen(timezoneString), 7);
-    data.WriteBits(strlen(timezoneString), 7);
-    data.FlushBits();
-    data.WriteString(timezoneString);
-    data.WriteString(timezoneString);
-    SendPacket(&data);
 }
 
 void WorldSession::SetPlayer(Player* player)
@@ -1218,13 +1203,26 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
-    //- HandleStableSwapPet
-    if (_setPetSlotCallback.IsReady())
+    if (_stablePetCallback.ready())
     {
-        uint32 param = _setPetSlotCallback.GetParam();
-        _setPetSlotCallback.GetResult(result);
-        HandleStableSetPetSlotCallback(result, param);
-        _setPetSlotCallback.FreeResult();
+        _stablePetCallback.get(result);
+        HandleStablePetCallback(result);
+        _stablePetCallback.cancel();
+    }
+    if (_unstablePetCallback.IsReady())
+    {
+        uint32 param = _unstablePetCallback.GetParam();
+        _unstablePetCallback.GetResult(result);
+        HandleUnstablePetCallback(result, param);
+        _unstablePetCallback.FreeResult();
+    }
+    //- HandleStableSwapPet
+    if (_stableSwapCallback.IsReady())
+    {
+        uint32 param = _stableSwapCallback.GetParam();
+        _stableSwapCallback.GetResult(result);
+        HandleStableSwapPetCallback(result, param);
+        _stableSwapCallback.FreeResult();
     }
 }
 
