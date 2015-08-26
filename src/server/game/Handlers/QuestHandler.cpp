@@ -777,19 +777,15 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     uint8 msg;
     recvPacket >> guid >> msg;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_QUEST_PUSH_RESULT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUEST_PUSH_RESULT");
 
     if (_player->GetDivider() != 0)
     {
         Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
         if (player)
         {
-            WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
-            ObjectGuid guidObj = player->GetGUID();
-            uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
-            uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
-            data.WriteBitInOrder(guidObj, bitOrder);
-            data.WriteBytesSeq(guidObj, byteOrder);
+            WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
+            data << uint64(guid);
             data << uint8(msg); 
             player->GetSession()->SendPacket(&data);
             _player->SetDivider(0);

@@ -1933,38 +1933,18 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_SPLIT");
 
-    uint32 unk = 0;
     std::string split_date = "01/01/01";
     //recvData >> unk;
 
-    WorldPacket data(SMSG_REALM_SPLIT, 18);
-    data << unk;
-    data << uint32(0x00000000);                             // realm split state
+    WorldPacket data(SMSG_REALM_SPLIT);
     data.WriteBits(split_date.size(), 7);
-    data.WriteString(split_date);
     //SendPacket(&data);
-}
+    data << uint32(0x00000000);                             // realm split state
 
-void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
 
-    uint32 realmId = recvData.read<uint32>();
-
-    WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 24);
-    data << realmId;
-    data << uint8(false); // ok, realmId exist server-side, inverted
+    data << split_date;
     
-    if (true)
-    {
-        data.WriteBits(sWorld->GetRealmName().length(), 8);
-        data.WriteBit(realmId == realmID);
-        data.WriteBits(sWorld->GetRealmName().length(), 8);
-        data.FlushBits();
 
-        data.WriteString(sWorld->GetRealmName());
-        data.WriteString(sWorld->GetRealmName());
-    }
     SendPacket(&data);
 }
 
