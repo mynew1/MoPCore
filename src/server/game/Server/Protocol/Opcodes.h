@@ -521,7 +521,6 @@ enum Opcodes
     CMSG_ZONEUPDATE = 0x0000,
     CMSG_CORPSE_QUERY = 0x129B,
     MSG_INSPECT_ARENA_TEAMS = 0x0000,
-    MSG_LIST_STABLED_PETS                             = 0x0000,
     MSG_MOVE_CHARM_TELEPORT_CHEAT = 0x0000,
     MSG_MOVE_FALL_LAND                                = 0x08FA, // 5.4.8
     MSG_MOVE_HEARTBEAT                                = 0x01F2, // 5.4.8
