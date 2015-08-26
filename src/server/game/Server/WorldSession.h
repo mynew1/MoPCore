@@ -549,7 +549,7 @@ class WorldSession
         void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
 
         void HandleSetFactionAtWar(WorldPacket& recvData);
-        void HandleUnSetFactionAtWar(WorldPacket& recvData);
+     //   void HandleUnSetFactionAtWar(WorldPacket& recvData);
         void HandleSetFactionCheat(WorldPacket& recvData);
         void HandleSetWatchedFactionOpcode(WorldPacket& recvData);
         void HandleSetFactionInactiveOpcode(WorldPacket& recvData);
@@ -1030,7 +1030,7 @@ class WorldSession
         void SendItemUpgradeResult(bool success);
 
         // Loot specialization
-        void HandleSetLootSpecialization(WorldPacket& recvData);
+      //  void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
         void HandleTradeInfo (WorldPacket& recvData);
