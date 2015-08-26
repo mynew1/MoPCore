@@ -1,1 +1,5 @@
-all starting zone questing chain for all class and race
+- all starting zone questing chain for all class and race
+- add full mmaps support
+- add more DB fixes
+- add all patch-Lab SAI scripts here
+- fix all DB startup errors

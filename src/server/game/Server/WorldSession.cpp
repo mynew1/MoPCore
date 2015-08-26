@@ -1049,6 +1049,7 @@ void WorldSession::SendAddonsInfo()
 
     m_addonsList.clear();
 
+<<<<<<< HEAD
     SendPacket(&data);
 }
 void WorldSession::SendTimezoneInformation()
@@ -1061,6 +1062,8 @@ void WorldSession::SendTimezoneInformation()
     data.FlushBits();
     data.WriteString(timezoneString);
     data.WriteString(timezoneString);
+=======
+>>>>>>> b75eb7cb76c629b7849f25ae5a28d4c41413a85d
     SendPacket(&data);
 }
 
@@ -1114,12 +1117,32 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 
     _filterAddonMessages = true;
 
+<<<<<<< HEAD
 
     // TIME_ZONE_INFORMATION timeZoneInfo;
     // GetTimeZoneInformation(&timeZoneInfo);
     // wcstombs(timezoneString, timeZoneInfo.StandardName, sizeof(timezoneString));
 
 
+=======
+void WorldSession::SendTimezoneInformation()
+{
+    char timezoneString[256];
+
+    // TIME_ZONE_INFORMATION timeZoneInfo;
+    // GetTimeZoneInformation(&timeZoneInfo);
+    // wcstombs(timezoneString, timeZoneInfo.StandardName, sizeof(timezoneString));
+
+    sprintf(timezoneString, "Etc/UTC"); // The method above cannot be used, because of non-english OS translations, so we send const data (possible strings are hardcoded in the client because of the same reason)
+
+    WorldPacket data(SMSG_TIME_ZONE_INFORMATION, 2 + strlen(timezoneString) * 2);
+    data.WriteBits(strlen(timezoneString), 7);
+    data.WriteBits(strlen(timezoneString), 7);
+    data.FlushBits();
+    data.WriteString(timezoneString);
+    data.WriteString(timezoneString);
+    SendPacket(&data);
+>>>>>>> b75eb7cb76c629b7849f25ae5a28d4c41413a85d
 }
 
 void WorldSession::SetPlayer(Player* player)
