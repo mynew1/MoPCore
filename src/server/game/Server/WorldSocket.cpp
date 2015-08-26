@@ -530,7 +530,7 @@ int WorldSocket::handle_input_header (void)
         size = header.size;
     }
 
-    if ((size > 10240) || (cmd > 0xFFFF && (cmd > 16) != 0x4C52))  // LR (from MSG_VERIFY_CONNECTIVITY)
+   if ((header.size < 4) || (header.size > 10240))
         {
             Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
