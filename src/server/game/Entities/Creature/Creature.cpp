@@ -2711,49 +2711,76 @@ bool Creature::SetHover(bool enable)
     if (!movespline->Initialized())
         return true;
 
-    ObjectGuid guid = GetGUID();
     if (enable)
+        PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+    else
+        PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
 
+    return true;
+}
 
+float Creature::GetAggroRange(Unit const* target) const
 {
     // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
     // Based on data from wowwiki due to lack of 3.3.5a data
-        WorldPacket data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
 
-        uint8 bitOrder[8] = {4, 1, 5, 7, 6, 2, 0, 3};
-        data.WriteBitInOrder(guid, bitOrder);
+    if (target && this->isPet())
+    {
+        uint32 targetLevel = 0;
+
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            targetLevel = target->getLevelForTarget(this);
+        else if (target->GetTypeId() == TYPEID_UNIT)
+            targetLevel = target->ToCreature()->getLevelForTarget(this);
+
+        uint32 myLevel = getLevelForTarget(target);
+        int32 levelDiff = int32(targetLevel) - int32(myLevel);
+
         // The maximum Aggro Radius is capped at 45 yards (25 level difference)
+        if (levelDiff < -25)
+            levelDiff = -25;
 
         // The base aggro radius for mob of same level
-        data.FlushBits();
+        float aggroRadius = 20;
+
         // Aggro Radius varies with level difference at a rate of roughly 1 yard/level
+        aggroRadius -= (float)levelDiff;
 
         // detect range auras
-        uint8 byteOrder[8] = {3, 7, 2, 5, 6, 1, 0, 4};
+        aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+
         // detected range auras
-        data.WriteBytesSeq(guid, byteOrder);
+        aggroRadius += target->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+
         // Just in case, we don't want pets running all over the map
+        if (aggroRadius > MAX_AGGRO_RADIUS)
+            aggroRadius = MAX_AGGRO_RADIUS;
 
         // Minimum Aggro Radius for a mob seems to be combat range (5 yards)
         //  hunter pets seem to ignore minimum aggro radius so we'll default it a little higher
-        SendMessageToSet(&data, false);
+        if (aggroRadius < 10)
+            aggroRadius = 10;
+
+        return (aggroRadius);
     }
-    else
+
     // Default
+    return 0.0f;
+}
 
+Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+    // Selects nearest hostile target within creature's aggro range. Used primarily by
     //  pets set to aggressive. Will not return neutral or friendly targets.
-        uint8 bitOrder[8] = {7, 2, 1, 4, 3, 0, 6, 5};
-        data.WriteBitInOrder(guid, bitOrder);
 
-        data.FlushBits();
-    
-        uint8 byteOrder[8] = {3, 0, 7, 1, 6, 2, 4, 5};
-        data.WriteBytesSeq(guid, byteOrder);
+    Unit* target = NULL;
 
-        SendMessageToSet(&data, false);
+    {
+		MoPCore::NearestHostileUnitInAggroRangeCheck u_check(this, useLOS);
+		MoPCore::UnitSearcher<MoPCore::NearestHostileUnitInAggroRangeCheck> searcher(this, target, u_check);
+
+        VisitNearbyGridObject(MAX_AGGRO_RADIUS, searcher);
     }
 
-    return true;
+    return target;
 }

@@ -75,7 +75,7 @@ enum AccountDataType
 #define NUM_ACCOUNT_DATA_TYPES        8
 
 #define GLOBAL_CACHE_MASK           0x15
-#define PER_CHARACTER_CACHE_MASK    0xEA
+#define PER_CHARACTER_CACHE_MASK    0xAA
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
 
@@ -252,7 +252,6 @@ class WorldSession
         void SendAddonsInfo();
         bool IsAddonRegistered(const std::string& prefix) const;
         void SendTimezoneInformation();
-        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
 
         void SendPacket(WorldPacket const* packet, bool forced = false);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
@@ -309,7 +308,6 @@ class WorldSession
 
         //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
         void SendNameQueryOpcode(ObjectGuid guid);
-        void SendRealmNameQueryOpcode(uint32 realmId);
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, const std::string& strTitle);
@@ -558,12 +556,11 @@ class WorldSession
         void HandleRequestAccountData(WorldPacket& recvPacket);
         void HandleSetActionButtonOpcode(WorldPacket& recvPacket);
 
-        void HandleGameObjectUseOpcode(WorldPacket& recData);
+        void HandleGameObjectUseOpcode(WorldPacket& recPacket);
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
-        void HandleGameobjectReportUse(WorldPacket& recvData);
+        void HandleGameobjectReportUse(WorldPacket& recvPacket);
 
         void HandleNameQueryOpcode(WorldPacket& recvPacket);
-        void HandleRealmNameQueryOpcode(WorldPacket& recvPacket);
 
         void HandleQueryTimeOpcode(WorldPacket& recvPacket);
 
@@ -623,7 +620,6 @@ class WorldSession
         void HandlePetitionDeclineOpcode(WorldPacket& recvData);
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
-        void SendPetitionSignResults(ObjectGuid petitionGuid, ObjectGuid playerGuid, uint8 result);
 
         void HandleGuildQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildInviteOpcode(WorldPacket& recvPacket);
@@ -683,8 +679,14 @@ class WorldSession
         void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
-        void HandleStableSetPetSlot(WorldPacket& recvPacket);
-        void HandleStableSetPetSlotCallback(PreparedQueryResult result, uint32 petId);
+        void HandleStablePet(WorldPacket& recvPacket);
+        void HandleStablePetCallback(PreparedQueryResult result);
+        void HandleUnstablePet(WorldPacket& recvPacket);
+        void HandleUnstablePetCallback(PreparedQueryResult result, uint32 petId);
+        void HandleBuyStableSlot(WorldPacket& recvPacket);
+        void HandleStableRevivePet(WorldPacket& recvPacket);
+        void HandleStableSwapPet(WorldPacket& recvPacket);
+        void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
         void SendTrainerService(uint64 guid, uint32 spellId, uint32 trainState);
 
         void HandleDuelResponseOpcode(WorldPacket& recvPacket);
@@ -1075,11 +1077,13 @@ class WorldSession
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
+        PreparedQueryResultFuture _stablePetCallback;
         PreparedQueryResultFuture _accountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
-        QueryCallback<PreparedQueryResult, uint32> _setPetSlotCallback;
+        QueryCallback<PreparedQueryResult, uint32> _unstablePetCallback;
+        QueryCallback<PreparedQueryResult, uint32> _stableSwapCallback;
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;

@@ -33,23 +33,13 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
+    uint8 bitOrder[8] = { 2, 0, 4, 3, 7, 1, 5, 6 };
+    recvPacket.ReadBitInOrder(guid, bitOrder);
 
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[0]);
+    recvPacket.FlushBits();
+    
+    uint8 byteOrder[8] = { 0, 3, 2, 6, 5, 4, 1, 7 };
+    recvPacket.ReadBytesSeq(guid, byteOrder);
 
     Player* caster = GetPlayer();
     Unit* unitTarget = NULL;
@@ -136,31 +126,28 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
 
 void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
 {
-    ObjectGuid guid;
     Player* player;
     Player* plTarget;
 
+    ObjectGuid guid;
+    uint8 byteOrder[8] = {0, 7, 6, 5, 3, 2, 4, 1};
     guid[7] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
+    bool accept = recvPacket.ReadBit();
     guid[2] = recvPacket.ReadBit();
+    guid[1] = recvPacket.ReadBit();
     guid[6] = recvPacket.ReadBit();
-	recvPacket.ReadBit();
     guid[5] = recvPacket.ReadBit();
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[3]);
+    guid[3] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+    recvPacket.FlushBits();
+    recvPacket.ReadBitInOrder(guid, byteOrder);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;
 
+    if (accept)
+    {
         player       = GetPlayer();
         plTarget = player->duel->opponent;
 
@@ -177,5 +164,19 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
         player->SendDuelCountdown(3000);
         plTarget->SendDuelCountdown(3000);
     }
+    else
+    {
         // player surrendered in a duel using /forfeit
+        if (GetPlayer()->duel->startTime != 0)
+        {
+            GetPlayer()->CombatStopWithPets(true);
+            if (GetPlayer()->duel->opponent)
+                GetPlayer()->duel->opponent->CombatStopWithPets(true);
 
+            GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
+            GetPlayer()->DuelComplete(DUEL_WON);
+            return;
+        }
+        GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+    }
+}

@@ -19,8 +19,9 @@
 #ifndef _MOVEMENT_STRUCTURES_H
 #define _MOVEMENT_STRUCTURES_H
 
-#include "Opcodes.h"
-#include "Object.h"
+#include "ByteBuffer.h"
+#include "WorldPacket.h"
+//#include "Object.h"
 
 class ByteBuffer;
 class Unit;
@@ -55,6 +56,7 @@ enum MovementStatusElements
     MSEHasFallDirection,
     MSEHasSplineElevation,
     MSEHasSpline,
+    MSEHasUnkTime,
 
     MSEGuidByte0,
     MSEGuidByte1,
@@ -94,13 +96,21 @@ enum MovementStatusElements
     MSEFallSinAngle,
     MSEFallHorizontalSpeed,
     MSESplineElevation,
-    MSECounter,
-    MSECounterCount,
-    MSEUintCount,
-    MSEHasUnkTime,
+    MSEUnkUIntCount,
+    MSEUnkUIntLoop,
     MSEUnkTime,
-
+    MSECounter,
+    MSEGenericDword0,
+    MSEGenericDword1,
+    MSEGenericDword2,
+    MSEGenericDword3,
+    MSEGenericDword4,
+    MSEGenericDword5,
+    MSEGenericDword6,
+    MSEGenericDword7,
+    MSEGeneric2bits0,
     // Special
+    MSEFlushBits,   //FlushBits()
     MSEZeroBit, // writes bit value 1 or skips read bit
     MSEOneBit,  // writes bit value 0 or skips read bit
     MSEEnd,     // marks end of parsing
@@ -110,12 +120,8 @@ enum MovementStatusElements
     MSEExtraInt8,
 };
 
-namespace Movement
-{
-    class PacketSender;
     class ExtraMovementStatusElement
     {
-        friend class PacketSender;
     public:
         ExtraMovementStatusElement(MovementStatusElements const* elements) : _elements(elements), _index(0) { }
 
@@ -129,7 +135,6 @@ namespace Movement
             int8  byteData;
         } Data;
 
-    protected:
         void ResetIndex() { _index = 0; }
 
     private:
@@ -140,7 +145,7 @@ namespace Movement
     class PacketSender
     {
     public:
-        PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast = SMSG_PLAYER_MOVE, ExtraMovementStatusElement* extras = NULL);
+        PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast = SMSG_MOVE_UPDATE, ExtraMovementStatusElement* extras = NULL);
 
         void Send() const;
 
@@ -152,7 +157,6 @@ namespace Movement
     };
 
     bool PrintInvalidSequenceElement(MovementStatusElements element, char const* function);
-}
 
 MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode);
 

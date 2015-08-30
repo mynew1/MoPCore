@@ -82,7 +82,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_WHISPER:
             type = CHAT_MSG_WHISPER;
             break;
-        /*case CMSG_MESSAGECHAT_GUILD:
+        case CMSG_MESSAGECHAT_GUILD:
             type = CHAT_MSG_GUILD;
             break;
         case CMSG_MESSAGECHAT_OFFICER:
@@ -104,11 +104,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             type = CHAT_MSG_RAID;
             break;
         case CMSG_MESSAGECHAT_BATTLEGROUND:
-            type = CHAT_MSG_BATTLEGROUND;
+            type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_MESSAGECHAT_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
-            break;*/
+            break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();

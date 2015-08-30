@@ -465,7 +465,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_406
     &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2      TODO : Find the difference between 7 & 407
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
- //   &AuraEffect::HandleAllowTurnWhileFalling,                     //409 SPELL_AURA_ALLOW_TURN_WHILE_FALLING
+    &AuraEffect::HandleAllowTurnWhileFalling,                     //409 SPELL_AURA_ALLOW_TURN_WHILE_FALLING
     &AuraEffect::HandleNULL,                                      //410 SPELL_AURA_410
     &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented in Spell::cast
     &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_412
@@ -3637,7 +3637,7 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
             return;
     }
 
-    target->SendMovementWaterWalking();
+    target->SendMovementWaterWalking(apply);
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3723,8 +3723,17 @@ void AuraEffect::HandleForceMoveForward(AuraApplication const* aurApp, uint8 mod
     }
 }
 
+void AuraEffect::HandleAllowTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
 
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
 
+    target->SendCanTurnWhileFalling(apply);
+}
 
 /****************************/
 /***        THREAT        ***/

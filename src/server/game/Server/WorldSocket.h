@@ -169,7 +169,6 @@ class WorldSocket : public WorldHandler
         void SendAuthResponse(uint8 code, bool queued, uint32 queuePos);
 
     private:
-        void SendAuthResponseError(uint8);
         /// Time in which the last ping was received
         ACE_Time_Value m_LastPingTime;
 

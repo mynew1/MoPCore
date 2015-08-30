@@ -31,120 +31,100 @@
 #include "Pet.h"
 #include "MapManager.h"
 
-void WorldSession::SendRealmNameQueryOpcode(uint32 realmId)
-{
-    uint32 RealmId = realmId;
-    if(realmId != realmID)
-        return; // Cheater ?
-    WorldPacket data(SMSG_REALM_NAME_QUERY_RESPONSE);
-    data << uint8(0); // ok, realmId exist server-side
-    data << uint32(RealmId);
-    data.WriteBits(sWorld->GetRealmName().size(), 8);
-    data.WriteBit(1); // unk, if it's main realm ?
-    data.WriteBits(sWorld->GetRealmName().size(), 8);
-    data.WriteString(sWorld->GetRealmName());
-    data.WriteString(sWorld->GetRealmName());
-    SendPacket(&data);
-}
-void WorldSession::HandleRealmNameQueryOpcode(WorldPacket& recvPacket)
-{
-    uint32 realmId;
-    recvPacket >> realmId;
-    SendRealmNameQueryOpcode(realmId);
-}
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
-    ObjectGuid guid2 = 0;
-    ObjectGuid guid3 = guid;
     Player* player = ObjectAccessor::FindPlayer(guid);
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
 
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 500);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
+    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 64);
 
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[6]);
+    uint8 guidOrder[8] = {4, 0, 2, 6, 5, 3, 1, 7};
+
+    data.WriteBitInOrder(guid, guidOrder);
     data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
     data << uint8(!nameData);
     
     if (nameData)
     {
         data << uint32(realmID);
-        data << uint32(1); // AccID
-        data << uint8(nameData->m_class);
-        data << uint8(nameData->m_race);
+        data << uint32(50397209);
         data << uint8(nameData->m_level);
+        data << uint8(nameData->m_race);
         data << uint8(nameData->m_gender);
+        data << uint8(nameData->m_class);
     }
 
-    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
 
-    if (!nameData)
+    if (nameData)
     {
-        SendPacket(&data);
-        return;
-    }
+        ObjectGuid unkGuid = 0;
+        ObjectGuid pGuid2 = guid;
 
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid3[7]);
-    data.WriteBit(guid3[2]);
-    data.WriteBit(guid3[0]);
+        data.WriteBit(unkGuid[1]);
+        data.WriteBit(pGuid2[2]);
+        data.WriteBit(pGuid2[5]);
+        data.WriteBit(pGuid2[0]);
+        data.WriteBit(pGuid2[7]);
+        data.WriteBit(unkGuid[5]);
+        data.WriteBit(pGuid2[3]);
+        data.WriteBit(unkGuid[4]);
         data.WriteBit(0);
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid3[5]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid2[0]);
+        data.WriteBit(pGuid2[6]);
+        data.WriteBits(nameData->m_name.size(), 6);
+        data.WriteBit(unkGuid[2]);
+        data.WriteBit(unkGuid[6]);
+        data.WriteBit(unkGuid[0]);
+        data.WriteBit(pGuid2[1]);
+        data.WriteBit(pGuid2[4]);
     
-    DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL);
+        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
+        {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        data.WriteBits(names ? names->name[i].size() : 0, 7);
+                data.WriteBits(names->name[i].size(), 7);
+        }
+        else
+        {
+            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                data.WriteBits(0, 7);
+        }
 
-    data.WriteBit(guid3[6]);
-    data.WriteBit(guid3[3]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid3[1]);
-    data.WriteBit(guid3[4]);
-    data.WriteBits(nameData->m_name.size(), 6);
-    data.WriteBit(guid2[2]);
+        data.WriteBit(unkGuid[7]);
+        data.WriteBit(unkGuid[3]);
 
         data.FlushBits();
         
-    data.WriteByteSeq(guid3[6]);
-    data.WriteByteSeq(guid3[0]);
-    data.WriteString(nameData->m_name);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid3[3]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid3[4]);
-    data.WriteByteSeq(guid3[2]);
-    data.WriteByteSeq(guid2[7]);
-
-    if (names)
+        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
+        {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                if (names->name[i].size())
                     data.WriteString(names->name[i]);
-
+        }
         
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid3[7]);
-    data.WriteByteSeq(guid3[1]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid3[5]);
-    data.WriteByteSeq(guid2[0]);
+        data.WriteByteSeq(pGuid2[4]);
+        data.WriteByteSeq(pGuid2[5]);
+        data.WriteByteSeq(pGuid2[7]);
+        data.WriteByteSeq(pGuid2[0]);
+        data.WriteByteSeq(unkGuid[7]);
+        data.WriteByteSeq(unkGuid[1]);
+        data.WriteByteSeq(unkGuid[0]);
+        data.WriteByteSeq(unkGuid[4]);
+        data.WriteByteSeq(pGuid2[1]);
+        data.WriteByteSeq(unkGuid[2]);
+        data.WriteByteSeq(unkGuid[5]);
+        data.WriteByteSeq(pGuid2[6]);
+        data.WriteByteSeq(pGuid2[2]);
+        data.WriteByteSeq(pGuid2[3]);
+        data.WriteString(nameData->m_name);
+        data.WriteByteSeq(unkGuid[3]);
+        data.WriteByteSeq(unkGuid[6]);
+    }
 
     SendPacket(&data);
 }

@@ -2507,8 +2507,8 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const
 {
-    data->Initialize(SMSG_PLAYER_MOVE);
-    //WriteMovementUpdate(*data);
+    data->Initialize(SMSG_MOVE_UPDATE);
+    WriteMovementInfo(*data);
 }
 
 void WorldObject::SendMessageToSet(WorldPacket* data, bool self)

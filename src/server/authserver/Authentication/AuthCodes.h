@@ -65,7 +65,7 @@ enum LoginResult
     LOGIN_LOCKED_ENFORCED                        = 0x10
 };
 
-#define MOPCORE_ACCEPTED_CLIENT_BUILD {18414, 18291, 18019, 15595, 16135, 12340, 0}
+#define MOPCORE_ACCEPTED_CLIENT_BUILD {18414, 18291, 18019, 16135, 12340, 0}
 
 namespace AuthHelper
 {
